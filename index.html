@@ -22,45 +22,49 @@
         .text-center {
             position: absolute;
             z-index: 10;
-            color: #ea80b0;
+            color: #ff5e99;
             text-align: center;
             pointer-events: none;
-            text-shadow: 0 0 20px rgba(234, 128, 176, 0.8);
+            /* Efek glow pada teks agar senada dengan hati */
+            text-shadow: 0 0 10px rgba(255, 94, 153, 0.5), 0 0 20px rgba(255, 94, 153, 0.3);
         }
         h1 {
-            font-size: 2.5rem;
+            font-size: 3rem;
             margin: 0;
             animation: pulse 1.5s ease-in-out infinite;
+            letter-spacing: 2px;
         }
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 1; }
         }
     </style>
 </head>
 <body>
 
     <div class="text-center">
-        <h1>I Love You</h1>
-        <p>Selamanya dan Seterusnya</p>
+        <h1>rama sayang lia</h1>
     </div>
 
     <canvas id="pinkboard"></canvas>
 
     <script>
         /*
-         * Settings & Math
+         * Konfigurasi Hati
          */
         var settings = {
             particles: {
-                length:   500, 
-                duration: 2, 
-                velocity: 100, 
-                effect:   -0.75, 
-                size:     30, 
+                length:   700,   // Jumlah partikel (ditambah agar lebih padat)
+                duration: 2.5,   // Durasi partikel melayang
+                velocity: 120,   // Kecepatan
+                effect:   -0.6, 
+                size:     12,    // Ukuran partikel ditingkatkan agar bentuk hati jelas
             },
         };
 
+        /*
+         * Polyfill untuk animasi yang mulus
+         */
         (function(){var b=0;var c=["ms","moz","webkit","o"];for(var a=0;a<c.length&&!window.requestAnimationFrame;++a){window.requestAnimationFrame=window[c[a]+"RequestAnimationFrame"];window.cancelAnimationFrame=window[c[a]+"CancelAnimationFrame"]||window[c[a]+"CancelRequestAnimationFrame"]}if(!window.requestAnimationFrame){window.requestAnimationFrame=function(h,e){var d=new Date().getTime();var f=Math.max(0,16-(d-b));var g=window.setTimeout(function(){h(d+f)},f);b=d+f;return g}}if(!window.cancelAnimationFrame){window.cancelAnimationFrame=function(d){clearTimeout(d)}}}());
 
         var Point = (function() {
@@ -152,6 +156,7 @@
                 particleRate = settings.particles.length / settings.particles.duration,
                 time;
 
+            // Rumus matematika untuk bentuk hati
             function pointOnHeart(t) {
                 return new Point(
                     160 * Math.pow(Math.sin(t), 3),
@@ -159,11 +164,13 @@
                 );
             }
 
+            // Membuat gambar partikel hati (BUKAN KOTAK)
             var image = (function() {
                 var canvas  = document.createElement('canvas'),
                     context = canvas.getContext('2d');
                 canvas.width  = settings.particles.size;
                 canvas.height = settings.particles.size;
+                
                 function drawHeartPath(context) {
                     context.beginPath();
                     var t = -Math.PI;
@@ -172,13 +179,19 @@
                     while (t < Math.PI) {
                         t += 0.01;
                         point = pointOnHeart(t);
-                        context.lineTo(point.x, point.y);
+                        // Skala disesuaikan agar pas di canvas kecil
+                        context.lineTo(
+                            settings.particles.size / 2 + point.x * (settings.particles.size / 350), 
+                            settings.particles.size / 2 - point.y * (settings.particles.size / 350)
+                        );
                     }
                     context.closePath();
                 }
-                context.fillStyle = '#ea80b0';
+                
+                context.fillStyle = '#ff5e99';
                 drawHeartPath(context);
                 context.fill();
+                
                 var image = new Image();
                 image.src = canvas.toDataURL();
                 return image;
