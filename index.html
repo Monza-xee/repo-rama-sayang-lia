@@ -1,228 +1,96 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>For My Love</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: 'Arial', sans-serif;
-        }
-        canvas {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-        .text-center {
-            position: absolute;
-            z-index: 10;
-            color: #ff5e99;
-            text-align: center;
-            pointer-events: none;
-            /* Efek glow pada teks agar senada dengan hati */
-            text-shadow: 0 0 10px rgba(255, 94, 153, 0.5), 0 0 20px rgba(255, 94, 153, 0.3);
-        }
-        h1 {
-            font-size: 3rem;
-            margin: 0;
-            animation: pulse 1.5s ease-in-out infinite;
-            letter-spacing: 2px;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.15); opacity: 1; }
-        }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Love You ❤️</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; overflow: hidden; }
+    canvas { display: block; }
+  </style>
 </head>
 <body>
+<canvas id="c"></canvas>
+<script>
+  const canvas = document.getElementById('c');
+  const ctx    = canvas.getContext('2d');
 
-    <div class="text-center">
-        <h1>rama sayang lia</h1>
-    </div>
+  let W = canvas.width  = window.innerWidth;
+  let H = canvas.height = window.innerHeight;
 
-    <canvas id="pinkboard"></canvas>
+  window.addEventListener('resize', () => {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    init();
+  });
 
-    <script>
-        /*
-         * Konfigurasi Hati
-         */
-        var settings = {
-            particles: {
-                length:   700,   // Jumlah partikel (ditambah agar lebih padat)
-                duration: 2.5,   // Durasi partikel melayang
-                velocity: 120,   // Kecepatan
-                effect:   -0.6, 
-                size:     12,    // Ukuran partikel ditingkatkan agar bentuk hati jelas
-            },
-        };
+  const FONT_SIZE  = 18;
+  const COL_WIDTH  = 90;
+  const ROW_HEIGHT = 24;
+  const TRAIL      = 18;
+  const SPEED      = 40;
+  const TEXTS      = ["rama sayang lia", "baby maafin aku", "loveu mollll"];
+  const RGB        = "255,34,68";
 
-        /*
-         * Polyfill untuk animasi yang mulus
-         */
-        (function(){var b=0;var c=["ms","moz","webkit","o"];for(var a=0;a<c.length&&!window.requestAnimationFrame;++a){window.requestAnimationFrame=window[c[a]+"RequestAnimationFrame"];window.cancelAnimationFrame=window[c[a]+"CancelAnimationFrame"]||window[c[a]+"CancelRequestAnimationFrame"]}if(!window.requestAnimationFrame){window.requestAnimationFrame=function(h,e){var d=new Date().getTime();var f=Math.max(0,16-(d-b));var g=window.setTimeout(function(){h(d+f)},f);b=d+f;return g}}if(!window.cancelAnimationFrame){window.cancelAnimationFrame=function(d){clearTimeout(d)}}}());
+  let cols, rows, drops, colText;
 
-        var Point = (function() {
-            function Point(x, y) {
-                this.x = (typeof x !== 'undefined') ? x : 0;
-                this.y = (typeof y !== 'undefined') ? y : 0;
-            }
-            Point.prototype.clone = function() { return new Point(this.x, this.y); };
-            Point.prototype.length = function(length) {
-                if (typeof length == 'undefined') return Math.sqrt(this.x * this.x + this.y * this.y);
-                this.normalize(); this.x *= length; this.y *= length; return this;
-            };
-            Point.prototype.normalize = function() {
-                var length = this.length(); this.x /= length; this.y /= length; return this;
-            };
-            return Point;
-        })();
+  function randText() {
+    return TEXTS[Math.floor(Math.random() * TEXTS.length)];
+  }
 
-        var Particle = (function() {
-            function Particle() {
-                this.position = new Point();
-                this.velocity = new Point();
-                this.acceleration = new Point();
-                this.age = 0;
-            }
-            Particle.prototype.initialize = function(x, y, dx, dy) {
-                this.position.x = x; this.position.y = y;
-                this.velocity.x = dx; this.velocity.y = dy;
-                this.acceleration.x = dx * settings.particles.effect;
-                this.acceleration.y = dy * settings.particles.effect;
-                this.age = 0;
-            };
-            Particle.prototype.update = function(deltaTime) {
-                this.position.x += this.velocity.x * deltaTime;
-                this.position.y += this.velocity.y * deltaTime;
-                this.velocity.x += this.acceleration.x * deltaTime;
-                this.velocity.y += this.acceleration.y * deltaTime;
-                this.age += deltaTime;
-            };
-            Particle.prototype.draw = function(context, image) {
-                function ease(t) { return (--t) * t * t + 1; }
-                var size = image.width * ease(this.age / settings.particles.duration);
-                context.globalAlpha = 1 - this.age / settings.particles.duration;
-                context.drawImage(image, this.position.x - size / 2, this.position.y - size / 2, size, size);
-            };
-            return Particle;
-        })();
+  function init() {
+    cols = Math.ceil(W / COL_WIDTH) + 1;
+    rows = Math.ceil(H / ROW_HEIGHT) + TRAIL;
 
-        var ParticlePool = (function() {
-            var particles, firstActive = 0, firstFree = 0, duration = settings.particles.duration;
-            function ParticlePool(length) {
-                particles = new Array(length);
-                for (var i = 0; i < particles.length; i++) particles[i] = new Particle();
-            }
-            ParticlePool.prototype.add = function(x, y, dx, dy) {
-                particles[firstFree].initialize(x, y, dx, dy);
-                firstFree++; if (firstFree == particles.length) firstFree = 0;
-                if (firstActive == firstFree) firstActive++;
-                if (firstActive == particles.length) firstActive = 0;
-            };
-            ParticlePool.prototype.update = function(deltaTime) {
-                var i;
-                if (firstActive < firstFree) {
-                    for (i = firstActive; i < firstFree; i++) particles[i].update(deltaTime);
-                }
-                if (firstFree < firstActive) {
-                    for (i = firstActive; i < particles.length; i++) particles[i].update(deltaTime);
-                    for (i = 0; i < firstFree; i++) particles[i].update(deltaTime);
-                }
-                while (particles[firstActive].age >= duration && firstActive != firstFree) {
-                    firstActive++; if (firstActive == particles.length) firstActive = 0;
-                }
-            };
-            ParticlePool.prototype.draw = function(context, image) {
-                if (firstActive < firstFree) {
-                    for (i = firstActive; i < firstFree; i++) particles[i].draw(context, image);
-                }
-                if (firstFree < firstActive) {
-                    for (i = firstActive; i < particles.length; i++) particles[i].draw(context, image);
-                    for (i = 0; i < firstFree; i++) particles[i].draw(context, image);
-                }
-            };
-            return ParticlePool;
-        })();
+    // Each column gets multiple independent streams
+    drops   = [];
+    colText = [];
+    for (let i = 0; i < cols; i++) {
+      // 2 streams per column offset apart
+      drops.push(Math.floor(Math.random() * rows));
+      drops.push(Math.floor(Math.random() * rows) - Math.floor(rows / 2));
+      colText.push(randText());
+      colText.push(randText());
+    }
+  }
+  init();
 
-        (function(canvas) {
-            var context = canvas.getContext('2d'),
-                particles = new ParticlePool(settings.particles.length),
-                particleRate = settings.particles.length / settings.particles.duration,
-                time;
+  function drawStream(x, headY, word) {
+    // Head
+    ctx.fillStyle = 'rgba(255,255,255,0.97)';
+    ctx.fillText(word, x, headY);
+    // Trail
+    for (let j = 1; j <= TRAIL; j++) {
+      const alpha = Math.max(0, 1.0 - j * (1.0 / TRAIL));
+      ctx.fillStyle = `rgba(${RGB},${alpha.toFixed(2)})`;
+      ctx.fillText(word, x, headY - j * ROW_HEIGHT);
+    }
+  }
 
-            // Rumus matematika untuk bentuk hati
-            function pointOnHeart(t) {
-                return new Point(
-                    160 * Math.pow(Math.sin(t), 3),
-                    130 * Math.cos(t) - 50 * Math.cos(2 * t) - 20 * Math.cos(3 * t) - 10 * Math.cos(4 * t) + 25
-                );
-            }
+  function draw() {
+    ctx.fillStyle = 'rgba(0,0,0,0.05)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.font      = `bold ${FONT_SIZE}px 'Courier New', monospace`;
+    ctx.textAlign = 'left';
 
-            // Membuat gambar partikel hati (BUKAN KOTAK)
-            var image = (function() {
-                var canvas  = document.createElement('canvas'),
-                    context = canvas.getContext('2d');
-                canvas.width  = settings.particles.size;
-                canvas.height = settings.particles.size;
-                
-                function drawHeartPath(context) {
-                    context.beginPath();
-                    var t = -Math.PI;
-                    var point = pointOnHeart(t);
-                    context.moveTo(point.x, point.y);
-                    while (t < Math.PI) {
-                        t += 0.01;
-                        point = pointOnHeart(t);
-                        // Skala disesuaikan agar pas di canvas kecil
-                        context.lineTo(
-                            settings.particles.size / 2 + point.x * (settings.particles.size / 350), 
-                            settings.particles.size / 2 - point.y * (settings.particles.size / 350)
-                        );
-                    }
-                    context.closePath();
-                }
-                
-                context.fillStyle = '#ff5e99';
-                drawHeartPath(context);
-                context.fill();
-                
-                var image = new Image();
-                image.src = canvas.toDataURL();
-                return image;
-            })();
+    const total = drops.length;
+    for (let i = 0; i < total; i++) {
+      const col   = Math.floor(i / 2);
+      const x     = col * COL_WIDTH + (i % 2) * (COL_WIDTH * 0.5);
+      const headY = drops[i] * ROW_HEIGHT;
 
-            function render() {
-                requestAnimationFrame(render);
-                var newTime = new Date().getTime() / 1000,
-                    deltaTime = newTime - (time || newTime);
-                time = newTime;
-                context.clearRect(0, 0, canvas.width, canvas.height);
-                var amount = particleRate * deltaTime;
-                for (var i = 0; i < amount; i++) {
-                    var pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random());
-                    var dir = pos.clone().length(settings.particles.velocity);
-                    particles.add(canvas.width / 2 + pos.x, canvas.height / 2 - pos.y, dir.x, -dir.y);
-                }
-                particles.update(deltaTime);
-                particles.draw(context, image);
-            }
+      drawStream(x, headY, colText[i]);
 
-            function onResize() {
-                canvas.width  = canvas.clientWidth;
-                canvas.height = canvas.clientHeight;
-            }
-            window.onresize = onResize;
-            setTimeout(function() {
-                onResize();
-                render();
-            }, 10);
-        })(document.getElementById('pinkboard'));
-    </script>
+      if (headY > H + TRAIL * ROW_HEIGHT) {
+        drops[i]   = -Math.floor(Math.random() * 8);
+        colText[i] = randText();
+      }
+      drops[i]++;
+    }
+  }
+
+  setInterval(draw, SPEED);
+</script>
 </body>
 </html>
