@@ -1319,3 +1319,164 @@ body {
   -webkit-animation-play-state: paused !important;
           animation-play-state: paused !important;
 }
+/* ===== LOVE BUTTON ===== */
+.love-btn-wrapper {
+  position: fixed;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.love-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #ff6b9d, #c44569);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-size: 16px;
+  font-family: 'Georgia', serif;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(255, 107, 157, 0.6), 0 4px 15px rgba(0,0,0,0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  letter-spacing: 0.5px;
+}
+
+.love-btn:hover {
+  transform: scale(1.07);
+  box-shadow: 0 0 35px rgba(255, 107, 157, 0.9), 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.love-btn:active {
+  transform: scale(0.97);
+}
+
+.heart-icon {
+  font-size: 20px;
+  animation: heartbeat 1.4s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  14% { transform: scale(1.25); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.15); }
+  56% { transform: scale(1); }
+}
+
+/* ===== OVERLAY ===== */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.overlay.show {
+  display: block;
+  opacity: 1;
+}
+
+/* ===== LOVE DIALOG ===== */
+.love-dialog {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%) scale(0.85);
+  z-index: 300;
+  width: min(88vw, 360px);
+  background: linear-gradient(160deg, #1a0a0f, #2d1020);
+  border: 1px solid rgba(255, 107, 157, 0.35);
+  border-radius: 20px;
+  padding: 32px 28px 28px;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(255, 107, 157, 0.25), 0 20px 60px rgba(0,0,0,0.7);
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+.love-dialog.show {
+  display: block;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  font-size: 18px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.close-btn:hover { color: #ff6b9d; }
+
+.envelope-top {
+  margin-bottom: 16px;
+}
+.envelope-flap {
+  font-size: 48px;
+  animation: floatEnvelope 3s ease-in-out infinite;
+}
+
+@keyframes floatEnvelope {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.letter-greeting {
+  font-family: 'Georgia', serif;
+  color: #ffb3cc;
+  font-size: 15px;
+  margin-bottom: 14px;
+  font-style: italic;
+}
+
+.letter-text {
+  font-family: 'Georgia', serif;
+  color: rgba(255, 220, 230, 0.88);
+  font-size: 14px;
+  line-height: 1.9;
+  margin-bottom: 20px;
+}
+
+.letter-signature {
+  font-family: 'Georgia', serif;
+  color: #ff6b9d;
+  font-size: 14px;
+  border-top: 1px solid rgba(255,107,157,0.2);
+  padding-top: 14px;
+}
+
+/* ===== PETAL RAIN ===== */
+.petal-rain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.petal {
+  position: absolute;
+  top: -20px;
+  font-size: 14px;
+  animation: petalFall linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes petalFall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+  100% { transform: translateY(420px) rotate(360deg); opacity: 0; }
+}
