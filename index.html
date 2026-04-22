@@ -306,6 +306,38 @@
         </div>
       </div>
     </div>
+
+    <!-- Love Button -->
+<div class="love-btn-wrapper">
+  <button class="love-btn" id="loveBtn">
+    <span class="heart-icon">💌</span>
+    <span class="btn-text">Buka Pesanku</span>
+  </button>
+</div>
+
+<!-- Love Letter Dialog -->
+<div class="overlay" id="overlay" onclick="closeDialog()"></div>
+<div class="love-dialog" id="loveDialog">
+  <button class="close-btn" onclick="closeDialog()">✕</button>
+  <div class="envelope-top">
+    <div class="envelope-flap">💌</div>
+  </div>
+  <div class="letter-body">
+    <p class="letter-greeting">Untuk Kamu yang Kusayang,</p>
+    <p class="letter-text">
+      Di setiap bintang yang bersinar malam ini,<br>
+      aku titipkan namamu.<br><br>
+      Seperti bunga yang mekar dalam gelap,<br>
+      kamu adalah cahaya yang tidak pernah padam<br>
+      di dalam hatiku.<br><br>
+      Terima kasih sudah hadir,<br>
+      dan mengubah duniaku menjadi lebih indah<br>
+      hanya dengan senyummu. 🌸
+    </p>
+    <p class="letter-signature">— Dengan sepenuh hati, <em>Aku</em> 🤍</p>
+  </div>
+  <div class="petal-rain" id="petalRain"></div>
+</div>
     
     <script src="main.js"></script>
   </body>
